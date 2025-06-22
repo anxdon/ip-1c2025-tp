@@ -7,20 +7,44 @@ from ..utilities import translator
 from django.contrib.auth import get_user
 
 # función que devuelve un listado de cards. Cada card representa una imagen de la API de Pokemon
+
 def getAllImages():
-    # debe ejecutar los siguientes pasos:
-    # 1) traer un listado de imágenes crudas desde la API (ver transport.py)
-    # 2) convertir cada img. en una card.
-    # 3) añadirlas a un nuevo listado que, finalmente, se retornará con todas las card encontradas.
-    pass
+
+    cards = []
+    rawimages = transport.getAllImages()
+
+    for r_image in rawimages:
+
+        name = r_image.get('name', 'unknown')
+        image_url = r_image.get('sprites', {}).get('front_default', '')
+        
+        types = r_image.get('types', [])
+        
+        if types:
+            type_id = types[0]['type']['name']
+        else:
+            type_id = 'unknown'
+        
+        type_icon_url = transport.get_type_icon_url_by_id(type_id)
+
+        card = {
+            'name': name,
+            'image_url': image_url,
+            'type': type_id,
+            'type_icon_url': type_icon_url
+        }
+
+        cards.append(card)
+
+    return cards
 
 # función que filtra según el nombre del pokemon.
 def filterByCharacter(name):
     filtered_cards = []
 
-    for card in getAllImages():
-        # debe verificar si el name está contenido en el nombre de la card, antes de agregarlo al listado de filtered_cards.
-        filtered_cards.append(card)
+    for card in transport.getAllImages():
+        if name.lower() in card['name'].lower():
+            filtered_cards.append(card)
 
     return filtered_cards
 
@@ -28,15 +52,15 @@ def filterByCharacter(name):
 def filterByType(type_filter):
     filtered_cards = []
 
-    for card in getAllImages():
-        # debe verificar si la casa de la card coincide con la recibida por parámetro. Si es así, se añade al listado de filtered_cards.
-        filtered_cards.append(card)
+    for card in transport.getAllImages():
+        if type_filter.lower() in card['type'].lower():
+            filtered_cards.append(card)
 
     return filtered_cards
 
 # añadir favoritos (usado desde el template 'home.html')
 def saveFavourite(request):
-    fav = '' # transformamos un request en una Card (ver translator.py)
+    fav = translator.fromRequestIntoCard(request.POST) # transformamos un request en una Card
     fav.user = get_user(request) # le asignamos el usuario correspondiente.
 
     return repositories.save_favourite(fav) # lo guardamos en la BD.
@@ -48,11 +72,11 @@ def getAllFavourites(request):
     else:
         user = get_user(request)
 
-        favourite_list = [] # buscamos desde el repositories.py TODOS Los favoritos del usuario (variable 'user').
+        favourite_list = repositories.get_all_favourites(user)
         mapped_favourites = []
 
         for favourite in favourite_list:
-            card = '' # convertimos cada favorito en una Card, y lo almacenamos en el listado de mapped_favourites que luego se retorna.
+            card = translator.fromTemplateIntoCard(favourite)
             mapped_favourites.append(card)
 
         return mapped_favourites
