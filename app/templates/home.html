@@ -36,20 +36,19 @@
         <h2 class="text-center">La búsqueda no arrojó resultados...</h2>
         {% else %} {% for img in images %}
         <div class="col">
-            <!-- evaluar si la imagen pertenece al tipo fuego, agua o planta -->
-    
+            <!-- evaluar si la imagen pertenece al tipo fuego, agua o planta --> 
             <div class="card mb-3 ms-5 
-                {% if 'fire' in img.types %}
+                {% if img.types and 'fire' in img.types %}
                     border-danger
-                {% elif 'water' in img.types %}
+                {% elif img.types and 'water' in img.types %}
                     border-primary
-                {% elif 'grass' in img.types %}
+                {% elif img.types and 'grass' in img.types %}
                     border-success
                 {% else %}
                     border-secondary
-                {% endif %}"
-
-            style="max-width: 540px; ">
+                {% endif %}
+                
+                style="max-width: 540px;">
 
                  <div class="row g-0">
                      <div class="col-md-4">
