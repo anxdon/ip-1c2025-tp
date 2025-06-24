@@ -10,57 +10,60 @@ def index_page(request):
 
 # esta función obtiene 2 listados: uno de las imágenes de la API y otro de favoritos, ambos en formato Card, y los dibuja en el template 'home.html'.
 def home(request):
-    images = services.getAllImages() # Obtiene todas las imagenes desde la API
-    if request.user.is_authenticated: # Usa una condicion para saber si inicio sesion
-        favourite_list = services.getAllFavourites(request) # si inicio sesion guarda las imagenes en favoritos 
+    images = services.getAllImages()
+    favourite_list = []
+    if request.user.is_authenticated:
+        favourite_list = services.getAllFavourites(request) 
     return render(request, 'home.html', { 'images': images, 'favourite_list': favourite_list })
 
 # función utilizada en el buscador.
 def search(request):
-    name = request.POST.get('query', '').strip() # al buscar elimina los espacios para facilitar la busqueda
+    name = request.POST.get('query', '').strip()
 
     # si el usuario ingresó algo en el buscador, se deben filtrar las imágenes por dicho ingreso.
-    if name != '': # usa una condicion para saber si puso algo en el buscador 
-        images = services.filterByCharacter(name) # Obtiene todas las imagenes desde la API dependiendo de lo que buscaste
-        if request.user.is_authenticated: # Usa una condicion para saber si inicio sesion
-            favourite_list = services.getAllFavourites(request) # si inicio sesion guarda las imagenes en favoritos 
+    if name != '':
+        images = services.filterByCharacter(name)
+        favourite_list = []
+        if request.user.is_authenticated:
+            favourite_list = services.getAllFavourites(request)
 
         return render(request, 'home.html', { 'images': images, 'favourite_list': favourite_list })
     else:
-        return redirect('home') # si el resultado de la busqueda es nada o solo espacios entonces lo devuelve a la paguina principal
+        return redirect('home')
 
 # función utilizada para filtrar por el tipo del Pokemon
 def filter_by_type(request):
-    type = request.POST.get('type', '').strip() # al buscar elimina los espacios para facilitar la busqueda
+    type = request.POST.get('type', '').strip()
 # debe traer un listado filtrado de imágenes, segun si es o contiene ese tipo.
-    if type != '': # usa una condicion para saber si puso algo en el buscador
-        images = services.filterByType(type_name) # Obtiene todas las imagenes desde la API dependiendo del filtro que elegiste
-        if request.user.is_authenticated: # Usa una condicion para saber si inicio sesion
-            favourite_list = services.getAllFavourites(request) # si inicio sesion guarda las imagenes en favoritos 
+    if type != '':
+        images = services.filterByType(type)
+        favourite_list = []
+        if request.user.is_authenticated:
+            favourite_list = services.getAllFavourites(request)
 
         return render(request, 'home.html', { 'images': images, 'favourite_list': favourite_list })
     else:
-        return redirect('home') # si el resultado de la busqueda es nada o solo espacios entonces lo devuelve a la paguina principal
+        return redirect('home')
 
 # Estas funciones se usan cuando el usuario está logueado en la aplicación.
 @login_required
 def getAllFavouritesByUser(request):
-    favourites = services.getAllFavourites(request) # agarra los favoritos y los guarda en una lista
-    return render(request, 'favourites.html', {'favourites': favourites}) # muestra una página (favourites.html) con los elementos favoritos del usuario logueado
+    favourites = services.getAllFavourites(request)
+    return render(request, 'favourites.html', {'favourites': favourites})
 
 @login_required
 def saveFavourite(request):
-    if request.method == 'POST': # verifica que el método HTTP de la petición sea POST
-        services.saveFavourite(request) # guardarlo en la base de datos como favorito
+    if request.method == 'POST':
+        services.saveFavourite(request)
     return redirect('home')
 
 @login_required
 def deleteFavourite(request):
-    if request.method == 'POST': # verifica que el método HTTP de la petición sea POST
-        services.deleteFavourite(request) # elimina de la base de datos el favorito
+    if request.method == 'POST':
+        services.deleteFavourite(request)
     return redirect('home')
 
 @login_required
 def exit(request):
-    logout(request) # elimina la sesión del usuario actual cerrando su sesión
-    return redirect('home') # redirige al usuario a la paguina principal
+    logout(request)
+    return redirect('home')
