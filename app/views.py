@@ -46,7 +46,7 @@ def filter_by_type(request):
 @login_required
 def getAllFavouritesByUser(request):
     favourites = services.getAllFavourites(request) # agarra los favoritos y los guarda en una lista
-    return render(request, 'favourited.html', {'favourites': favourites}) # muestra una página (favourited.html) con los elementos favoritos del usuario logueado
+    return render(request, 'favourites.html', {'favourites': favourites}) # muestra una página (favourites.html) con los elementos favoritos del usuario logueado
 
 @login_required
 def saveFavourite(request):
