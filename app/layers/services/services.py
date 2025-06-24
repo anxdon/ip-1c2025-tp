@@ -17,19 +17,30 @@ def getAllImages():
 
         name = r_image.get('name', 'unknown')
         image_url = r_image.get('sprites', {}).get('front_default', '')
-        
+        id_ = r_image.get('id', 0)
+        height = r_image.get('height', 0)
+        weight = r_image.get('weight', 0)
+        base_exp = r_image.get('base_experience', 0)
         types = r_image.get('types', [])
         
+        type_names = []
+        
         if types:
-            type_id = types[0]['type']['name']
-        else:
-            type_id = 'unknown'
+            for t in types:
+                type_names.append(t['type']['name'])
+
+        type_id = type_names[0] if type_names else 'unknown'
         
         type_icon_url = transport.get_type_icon_url_by_id(type_id)
 
         card = {
             'name': name,
-            'image_url': image_url,
+            'image': image_url,
+            'id': id_,
+            'base': base_exp,
+            'weight': weight,
+            'height': height,
+            'types': type_names,
             'type': type_id,
             'type_icon_url': type_icon_url
         }
@@ -38,27 +49,31 @@ def getAllImages():
 
     return cards
 
+
 # función que filtra según el nombre del pokemon.
+
 def filterByCharacter(name):
     filtered_cards = []
 
-    for card in transport.getAllImages():
+    for card in getAllImages():
         if name.lower() in card['name'].lower():
             filtered_cards.append(card)
 
     return filtered_cards
 
 # función que filtra las cards según su tipo.
+
 def filterByType(type_filter):
     filtered_cards = []
 
-    for card in transport.getAllImages():
+    for card in getAllImages():
         if type_filter.lower() in card['type'].lower():
             filtered_cards.append(card)
 
     return filtered_cards
 
 # añadir favoritos (usado desde el template 'home.html')
+
 def saveFavourite(request):
     fav = translator.fromRequestIntoCard(request.POST) # transformamos un request en una Card
     fav.user = get_user(request) # le asignamos el usuario correspondiente.
@@ -66,6 +81,7 @@ def saveFavourite(request):
     return repositories.save_favourite(fav) # lo guardamos en la BD.
 
 # usados desde el template 'favourites.html'
+
 def getAllFavourites(request):
     if not request.user.is_authenticated:
         return []
