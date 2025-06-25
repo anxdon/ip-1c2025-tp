@@ -140,3 +140,7 @@ table.table td i {
     margin-top: 6px;
     font-size: 95%;
 }
+
+.border-orange {
+    border: 1px solid orange !important;
+}
