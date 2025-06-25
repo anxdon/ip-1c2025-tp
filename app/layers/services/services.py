@@ -9,45 +9,14 @@ from django.contrib.auth import get_user
 # función que devuelve un listado de cards. Cada card representa una imagen de la API de Pokemon
 
 def getAllImages():
+    images_list = transport.getAllImages()
+    card_list = []
+    for poke_data in images_list:
+        card = translator.fromRequestIntoCard(poke_data)
+        card_list.append(card)
 
-    cards = []
-    rawimages = transport.getAllImages()
+    return card_list
 
-    for r_image in rawimages:
-
-        name = r_image.get('name', 'unknown')
-        image_url = r_image.get('sprites', {}).get('front_default', '')
-        id_ = r_image.get('id', 0)
-        height = r_image.get('height', 0)
-        weight = r_image.get('weight', 0)
-        base_exp = r_image.get('base_experience', 0)
-        types = r_image.get('types', [])
-        
-        type_names = []
-        
-        if types:
-            for t in types:
-                type_names.append(t['type']['name'])
-
-        type_id = type_names[0] if type_names else 'unknown'
-        
-        type_icon_url = transport.get_type_icon_url_by_id(type_id)
-
-        card = {
-            'name': name,
-            'image': image_url,
-            'id': id_,
-            'base': base_exp,
-            'weight': weight,
-            'height': height,
-            'types': type_names,
-            'type': type_id,
-            'type_icon_url': type_icon_url
-        }
-
-        cards.append(card)
-
-    return cards
 
 
 # función que filtra según el nombre del pokemon.

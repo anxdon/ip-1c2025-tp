@@ -34,7 +34,6 @@ def search(request):
 # función utilizada para filtrar por el tipo del Pokemon
 def filter_by_type(request):
     type = request.POST.get('type', '').strip()
-# debe traer un listado filtrado de imágenes, segun si es o contiene ese tipo.
     if type != '':
         images = services.filterByType(type)
         favourite_list = []
